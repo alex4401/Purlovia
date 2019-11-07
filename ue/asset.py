@@ -282,17 +282,32 @@ class ExportTableItem(UEBase):
     def _deserialise(self):  # pylint: disable=arguments-differ
         self._newField('klass', ObjectIndex(self))  # item type/class
         self._newField('super', ObjectIndex(self))  # item type/class namespace
+        if self.asset.is_mobile_asset:  # ue_ver >= 508
+            self._newField('template', ObjectIndex(self))
         self._newField('namespace', ObjectIndex(self))  # item namespace
         self._newField('name', NameIndex(self))  # item name
         self._newField('object_flags', self.stream.readUInt32())
-        self._newField('serial_size', self.stream.readUInt32())
-        self._newField('serial_offset', self.stream.readUInt32())
+        if self.asset.is_mobile_asset:  # 64-bit, ue_ver >= 511
+            self._newField('serial_size', self.stream.readUInt64())
+            self._newField('serial_offset', self.stream.readUInt64())
+        else:
+            self._newField('serial_size', self.stream.readUInt32())
+            self._newField('serial_offset', self.stream.readUInt32())
         self._newField('force_export', self.stream.readBool32())
         self._newField('not_for_client', self.stream.readBool32())
         self._newField('not_for_server', self.stream.readBool32())
         self._newField('guid', Guid(self))
         self._newField('package_flags', self.stream.readUInt32())
         self._newField('not_for_editor_game', self.stream.readBool32())
+        if self.asset.is_mobile_asset:
+            # ue_ver >= 485
+            self._newField('is_asset', self.stream.readBool32())
+            # ue_ver >= 507
+            self._newField('first_export_dependency', self.stream.readUInt32())
+            self._newField('serial_before_serial_deps', self.stream.readUInt32())
+            self._newField('create_before_serial_deps', self.stream.readUInt32())
+            self._newField('serial_before_create_deps', self.stream.readUInt32())
+            self._newField('create_before_create_deps', self.stream.readUInt32())
 
         if INCLUDE_METADATA:
             # References to this item
