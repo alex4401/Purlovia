@@ -106,7 +106,7 @@ class UAsset(UEBase):
         # Read the various chunk table contents
         # These tables are not included in the field list so they're not included in pretty printing
         # TODO: Include chunk ends by using other chunk start locations
-        self._newField('names', self._parseTable(self.names_chunk, StringProperty))
+        self._newField('names', self._parseTable(self.names_chunk, NameTableItem))
         self._newField('imports', self._parseTable(self.imports_chunk, ImportTableItem))
         self._newField('exports', self._parseTable(self.exports_chunk, ExportTableItem))
 
@@ -210,6 +210,14 @@ class UAsset(UEBase):
     #         return hash(tuple(self.assetname, self.start_offset, self.end_offset))
 
     #     return super().__hash__()
+
+
+class NameTableItem(StringProperty):
+    def _deserialise(self, *args):
+        StringProperty._deserialise(self, *args)
+        if self.asset.is_mobile_asset:
+            self._newField('non_case_preserving_hash', self.stream.readUInt16())
+            self._newField('case_preserving_hash', self.stream.readUInt16())
 
 
 class ImportTableItem(UEBase):
