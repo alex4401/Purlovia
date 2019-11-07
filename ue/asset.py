@@ -60,6 +60,12 @@ class UAsset(UEBase):
         self._newField('ue_ver', self.stream.readInt32())
         self._newField('file_ver', self.stream.readUInt32())
         self._newField('licensee_ver', self.stream.readUInt32())
+        # Mobile assets are not versioned after being cooked.
+        # HACK: Checking whether the version is zero is the easiest,
+        # but preferably we should make this into an override or
+        # a command line option.
+        self._newField('is_mobile_asset', self.ue_ver == 0)
+
         self._newField('custom_versions', Table(self).deserialise(CustomVersion, self.stream.readUInt32()))
         self._newField('header_size', self.stream.readUInt32())
         self._newField('package_group', StringProperty(self))
@@ -67,20 +73,26 @@ class UAsset(UEBase):
 
         # Chunk offsets
         self._newField('names_chunk', ChunkPtr(self))
+        if self.is_mobile_asset:  # ue_ver >= 459
+            self._newField('gatherable_text', ChunkPtr(self))
         self._newField('exports_chunk', ChunkPtr(self))
         self._newField('imports_chunk', ChunkPtr(self))
         self._newField('depends_offset', self.stream.readUInt32())
         self._newField('string_assets', ChunkPtr(self))
+        if self.is_mobile_asset:  # ue_ver >= 510
+            self._newField('searchable_names_offset', self.stream.readUInt32())
         self._newField('thumbnail_offset', self.stream.readUInt32())
 
         # Remaining header
         self._newField('guid', Guid(self))
         self._newField('generations', Table(self).deserialise(GenerationInfo, self.stream.readUInt32()))
         self._newField('engine_version_saved', EngineVersion(self))
+        if self.is_mobile_asset:  # ue_ver >= 444
+            self._newField('compatible_engine_version', EngineVersion(self))
         self._newField('compression_flags', self.stream.readUInt32())
         self._newField('compressed_chunks', Table(self).deserialise(CompressedChunk, self.stream.readUInt32()))
         self._newField('package_source', self.stream.readUInt32())
-        if self.licensee_ver >= 10:
+        if not self.is_mobile_asset and self.licensee_ver >= 10:
             # This field isn't present in some older ARK mods
             self._newField('unknown_field', self.stream.readUInt64())
         self._newField('packages_to_cook', Table(self).deserialise(StringProperty, self.stream.readUInt32()))
