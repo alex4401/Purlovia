@@ -588,9 +588,14 @@ class TextProperty(UEBase):
     def _deserialise(self, *args):
         self._newField('flags', self.stream.readUInt32())
         self._newField('history_type', self.stream.readInt8())
-        self._newField('namespace', StringProperty(self))
-        self._newField('key', StringProperty(self))
-        self._newField('source_string', StringProperty(self))
+        if self.history_type == 0:
+            self._newField('namespace', StringProperty(self))
+            self._newField('key', StringProperty(self))
+            self._newField('source_string', StringProperty(self))
+        else:
+            self._newField('namespace', '')
+            self._newField('key', '')
+            self._newField('source_string', '')
 
     def __str__(self):
         return f'{self.source_string}'
