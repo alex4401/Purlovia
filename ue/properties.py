@@ -157,6 +157,10 @@ class PropertyHeader(UEBase):
             self._newField('inner_type', NameIndex(self))
             if self.asset.is_mobile_asset:  # ue_ver >= 441
                 self._newField('struct_guid', Guid(self))
+        elif type_name == 'ByteProperty':
+            self._newField('inner_type', NameIndex(self))
+        elif type_name == 'BoolProperty':
+            self._newField('inner_value', self.stream.readBool8())
 
         # Property GUID
         if self.asset.is_mobile_asset:  # ue_ver >= 503
@@ -440,7 +444,11 @@ class BoolProperty(ValueProperty):
         return obj
 
     def _deserialise(self, size=None):
-        self._newField('value', self.stream.readBool8())
+        if hasattr(self.parent, 'header') and hasattr(self.parent.header, 'inner_value'):
+            # Field has already been read.
+            self._newField('value', self.parent.header.inner_value)
+        else:
+            self._newField('value', self.stream.readBool8())
 
 
 class ByteProperty(ValueProperty):  # With optional enum type
@@ -464,7 +472,10 @@ class ByteProperty(ValueProperty):  # With optional enum type
     def _deserialise(self, size=None):
         assert size is not None
 
-        self._newField('enum', NameIndex(self))
+        if hasattr(self.parent, 'header') and hasattr(self.parent.header, 'inner_type'):
+            self._newField('enum', self.parent.header.inner_type)
+        else:
+            self._newField('enum', NameIndex(self))
         if size == 1:
             self._newField('value', self.stream.readUInt8())
         elif size == 8:
@@ -619,10 +630,17 @@ class StructEntry(UEBase):
     value: UEBase
 
     def _deserialise(self):
-        self._newField('name', NameIndex(self))
-        self._newField('type', '<not yet defined>')
-        entryType = NameIndex(self).deserialise()
-        self._newField('length', self.stream.readInt64())
+        if self.asset.is_mobile_asset:
+            self._newField('header', PropertyHeader(self))
+            self._newField('name', self.header.name)
+            self._newField('type', '<not yet defined>')
+            entryType = self.header.type
+            self._newField('length', self.header.size)
+        else:
+            self._newField('name', NameIndex(self))
+            self._newField('type', '<not yet defined>')
+            entryType = NameIndex(self).deserialise()
+            self._newField('length', self.stream.readInt64())
 
         self.name.link()
 
