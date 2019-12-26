@@ -147,6 +147,10 @@ class PropertyHeader(UEBase):
         self._newField('type', NameIndex(self))
         self._newField('size', self.stream.readUInt32())
         self._newField('index', self.stream.readUInt32())
+        if self.asset.is_mobile_asset:
+            self._newField('has_guid', self.stream.readBool8())
+            if self.has_guid:
+                self._newField('guid', Guid(self))
 
 
 class Property(UEBase):
