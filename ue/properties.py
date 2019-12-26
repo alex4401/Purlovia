@@ -444,7 +444,7 @@ class BoolProperty(ValueProperty):
         return obj
 
     def _deserialise(self, size=None):
-        if hasattr(self.parent, 'header') and hasattr(self.parent.header, 'inner_value'):
+        if hasattr(self, 'parent') and hasattr(self.parent, 'header') and hasattr(self.parent.header, 'inner_value'):
             # Field has already been read.
             self._newField('value', self.parent.header.inner_value)
         else:
@@ -472,7 +472,7 @@ class ByteProperty(ValueProperty):  # With optional enum type
     def _deserialise(self, size=None):
         assert size is not None
 
-        if hasattr(self.parent, 'header') and hasattr(self.parent.header, 'inner_type'):
+        if hasattr(self, 'parent') and hasattr(self.parent, 'header') and hasattr(self.parent.header, 'inner_type'):
             self._newField('enum', self.parent.header.inner_type)
         else:
             self._newField('enum', NameIndex(self))

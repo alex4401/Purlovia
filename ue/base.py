@@ -30,8 +30,8 @@ class UEBase(object):
         self.is_linking = False
         self.is_linked = False
         self.is_inside_array = False
+        self.parent: Optional["UEBase"] = owner if owner is not owner.asset else None
         if INCLUDE_METADATA:
-            self.parent: Optional["UEBase"] = owner if owner is not owner.asset else None
             self.field_order: List[str] = []
             self.end_offset: Optional[int] = None
 
