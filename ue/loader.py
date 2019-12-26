@@ -429,18 +429,25 @@ class AssetLoader:
             raise AssetNotFound(filename)
         return mem
 
-    def load_raw_asset(self, name: str) -> Tuple[memoryview, str]:
+    def load_raw_asset(self, name: str) -> Tuple[memoryview, memoryview, str]:
         '''
         Load an asset given its asset name into memory without parsing it.
         Returns (memoryview, ext).
         '''
+        # TODO: Mobile-only. Make this somehow work with both platforms.
         name = self.clean_asset_name(name)
-        mem = None
-        for ext in ('.uasset', '.umap'):
-            filename = self.convert_asset_name_to_path(name, ext=ext)
-            if Path(filename).is_file():
-                mem = load_file_into_memory(filename)
-                return (mem, ext)
+        asset_mem = None
+        exports_mem = None
+        exports_filename = self.convert_asset_name_to_path(name, ext='.uexp')
+
+        if Path(exports_filename).is_file():
+            for ext in ('.uasset', '.umap'):
+                asset_filename = self.convert_asset_name_to_path(name, ext=ext)
+
+                if Path(asset_filename).is_file():
+                    asset_mem = load_file_into_memory(asset_filename)
+                    exports_mem = load_file_into_memory(exports_filename)
+                    return (asset_mem, exports_mem, ext)
 
         raise AssetNotFound(name)
 
@@ -470,9 +477,10 @@ class AssetLoader:
 
     def _load_asset(self, assetname: str, doNotLink=False) -> UAsset:
         logger.debug(f"Loading asset: {assetname}")
-        mem, ext = self.load_raw_asset(assetname)
-        stream = MemoryStream(mem, 0, len(mem))
-        asset = UAsset(weakref.proxy(stream))
+        asset_mem, export_mem, ext = self.load_raw_asset(assetname)
+        asset_stream = MemoryStream(asset_mem, 0, len(asset_mem))
+        export_stream = MemoryStream(export_mem, 0, len(export_mem))
+        asset = UAsset(weakref.proxy(asset_stream), weakref.proxy(export_stream))
         asset.loader = self
         asset.assetname = assetname
         asset.name = assetname.split('/')[-1]

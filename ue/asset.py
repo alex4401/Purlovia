@@ -38,9 +38,10 @@ class UAsset(UEBase):
 
     none_index: int
 
-    def __init__(self, stream):
+    def __init__(self, asset_stream, export_stream=None):
         # Bit of a hack because we are the root of the tree
         self.asset = self
+        self.export_stream: MemoryStream = export_stream or asset_stream
         self.loader: Optional['AssetLoader'] = None
         self.assetname: Optional[str] = None
         self.name: Optional[str] = None
@@ -49,7 +50,7 @@ class UAsset(UEBase):
         self.default_class: Optional['ExportTableItem'] = None
         self.has_properties = False
         self.has_bulk_data = False
-        super().__init__(self, stream)
+        super().__init__(self, asset_stream)
 
     def _deserialise(self):  # pylint: disable=arguments-differ
         ctx = get_ctx()
@@ -327,7 +328,10 @@ class ExportTableItem(UEBase):
             raise RuntimeError('Attempt to deserialise properties more than once')
 
         # We deferred deserialising the properties until all imports/exports were defined
-        stream = MemoryStream(self.stream, self.serial_offset, self.serial_size)
+        offset = self.serial_offset
+        if self.asset.is_mobile_asset:
+            offset -= self.asset.header_size
+        stream = MemoryStream(self.asset.export_stream, offset, self.serial_size)
         self._newField('properties', PropertyTable(self, weakref.proxy(stream)))
         self.properties.link()
 
