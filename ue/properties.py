@@ -147,7 +147,19 @@ class PropertyHeader(UEBase):
         self._newField('type', NameIndex(self))
         self._newField('size', self.stream.readUInt32())
         self._newField('index', self.stream.readUInt32())
-        if self.asset.is_mobile_asset:
+
+        # Type-specific fields
+        self.type.link()
+        type_name = str(self.type)
+        if type_name == 'ArrayProperty':
+            self._newField('inner_type', NameIndex(self))
+        elif type_name == 'StructProperty':
+            self._newField('inner_type', NameIndex(self))
+            if self.asset.is_mobile_asset:  # ue_ver >= 441
+                self._newField('struct_guid', Guid(self))
+
+        # Property GUID
+        if self.asset.is_mobile_asset:  # ue_ver >= 503
             self._newField('has_guid', self.stream.readBool8())
             if self.has_guid:
                 self._newField('guid', Guid(self))
@@ -682,7 +694,7 @@ TYPED_ARRAY_CONTENT = {
 
 def decode_type_or_name(type_or_name: NameIndex, skip_deserialise=False):
     '''Decode a name as either a supported type, a length of an unsupported but skippable type, or a simple name.'''
-    if not skip_deserialise:
+    if not type_or_name.is_serialised and not skip_deserialise:
         type_or_name.deserialise()
     if type_or_name.index == type_or_name.asset.none_index:
         return None, None, None
@@ -734,7 +746,11 @@ class StructProperty(UEBase):
         # Only process the struct name / type if we're not inside an array
         if not self.is_inside_array:
             # The first field may be the name or type... work out how to deal with it
-            type_or_name = NameIndex(self)
+            if hasattr(self.parent, 'header') and hasattr(self.parent.header, 'inner_type'):
+                # Field has already been read.
+                type_or_name = self.parent.header.inner_type
+            else:
+                type_or_name = NameIndex(self)
             name, propertyType, skipLength = decode_type_or_name(type_or_name)
             if dbg_structs:
                 print(f'Struct @ {self.start_offset}, size={size}: ' +
@@ -847,11 +863,19 @@ class ArrayProperty(UEBase):
     def _deserialise(self, size, with_type: Type = None):  # type: ignore
         assert size >= 4, "Array size is required"
 
-        self._newField('field_type', NameIndex(self))
+        if hasattr(self.parent, 'header') and hasattr(self.parent.header, 'inner_type'):
+            # Field type has already been read.
+            self._newField('field_type', self.parent.header.inner_type)
+        else:
+            self._newField('field_type', NameIndex(self))
         self.field_type.link()
 
         saved_offset = self.stream.offset
         self._newField('count', self.stream.readUInt32())
+
+        if self.asset.is_mobile_asset and str(self.field_type) in ('ArrayProperty', 'StructProperty'):  # ue_ver >= 500
+            # Read the header of inner struct/array.
+            self._newField('inner_header', PropertyHeader(self))
 
         if self.count <= 0:
             self._newField('values', [])
