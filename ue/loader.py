@@ -14,7 +14,7 @@ import psutil  # type: ignore
 from .asset import ExportTableItem, ImportTableItem, UAsset
 from .base import UEBase
 from .context import ParsingContext, get_ctx
-from .properties import ObjectIndex, ObjectProperty, Property
+from .properties import ObjectIndex, ObjectProperty, Property, StringProperty
 from .stream import MemoryStream
 
 logger = getLogger(__name__)
@@ -398,6 +398,11 @@ class AssetLoader:
             return self.load_related(obj.value)
         if isinstance(obj, ObjectProperty):
             return self.load_related(obj.value.value)
+        if isinstance(obj, StringProperty):
+            assetname = str(obj)
+            loader = obj.asset.loader
+            asset = loader[assetname]
+            return asset
         if isinstance(obj, ImportTableItem):
             assetname = str(obj.namespace.value.name.value)
             loader = obj.asset.loader
