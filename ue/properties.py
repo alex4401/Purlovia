@@ -598,7 +598,7 @@ class TextProperty(UEBase):
             self._newField('source_string', '')
 
     def __str__(self):
-        return f'{self.source_string}'
+        return str(self.source_string)
 
 
 class Guid(UEBase):
