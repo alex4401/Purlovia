@@ -696,9 +696,8 @@ class StructEntry(UEBase):
 
 STRUCT_TYPES_TO_ABORT_ON = (
     # name of struct to ignore
-    'Transform',
-    'DinoSetup',
-)
+    #'Transform',
+    'DinoSetup', )
 
 SKIPPABLE_STRUCTS = {
     # 'name': byte length
