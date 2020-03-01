@@ -28,3 +28,4 @@ DAMAGE_TYPE_RADIATION_PKG = ABERRATION_PKG + 'CoreBlueprints/DamageTypes/DmgType
 GAS_VEIN_GEN1_CLS = '/Game/Genesis/Structures/GasVein/GasVein_Base_Gen_BP.GasVein_Base_Gen_BP_C'
 OIL_VENT_GEN1_CLS = '/Game/Genesis/Structures/GasVein/OilVent_BP.OilVent_BP_C'
 LUNAR_OXYGEN_VENT_GEN1_CLS = '/Game/Genesis/Structures/GasVein/LunarOxygenVent_BP.LunarOxygenVent_BP_C'
+POINT_OF_INTEREST_LIST_GEN1_CLS = '/Script/ShooterGame.PointOfInterestManagerList'
