@@ -66,6 +66,16 @@ def inherits_from(klass: Union[str, ExportTableItem], target: str, safe=False, i
     `safe` as True will return False when encountering a HierarchyError.
     `include_self` to allow the case where the two inputs are equivalent.
     '''
+    if isinstance(klass, str):
+        return _inherits_from(klass, target, safe, include_self)
+    elif isinstance(klass, ExportTableItem):
+        return _inherits_from.__wrapped__(klass, target, safe, include_self)
+    else:
+        raise TypeError('Invalid argument')
+    
+
+@lrucache(maxsize=1024)
+def _inherits_from(klass: Union[str, ExportTableItem], target: str, safe=False, include_self=False) -> bool:
     if safe:
         try:
             return target in find_parent_classes(klass, include_self=include_self)
@@ -103,6 +113,16 @@ def find_parent_classes(klass: Union[str, ExportTableItem], *, include_self=Fals
     Note that if the supplied `klass` is not an asset's main class it must be
     supplied as an ExportTableItem to allow discovery of intermediate hierarchy.
     '''
+    if isinstance(klass, str):
+        yield from _find_parent_classes(klass, include_self=include_self)
+    elif isinstance(klass, ExportTableItem):
+        yield from _find_parent_classes.__wrapped__(klass, include_self=include_self)
+    else:
+        raise TypeError('Invalid argument')
+
+
+@lru_cache(maxsize=1024)
+def _find_parent_classes(klass: Union[str, ExportTableItem], *, include_self=False) -> Iterator[str]:
     export: Optional[ExportTableItem] = None
 
     if isinstance(klass, str):
@@ -252,6 +272,9 @@ def _ingest_export(export: ExportTableItem, loader: AssetLoader):
     # We may have already covered this while traversing parents
     if fullname in tree:
         return
+
+    _inherits_from.cache_clear()
+    _find_parent_classes.cache_clear()
 
     while True:
         # Extend unsaved segment
