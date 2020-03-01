@@ -72,17 +72,17 @@ def inherits_from(klass: Union[str, ExportTableItem], target: str, safe=False, i
         return _inherits_from.__wrapped__(klass, target, safe, include_self)
     else:
         raise TypeError('Invalid argument')
-    
 
-@lrucache(maxsize=1024)
+
+@lru_cache(maxsize=1024)
 def _inherits_from(klass: Union[str, ExportTableItem], target: str, safe=False, include_self=False) -> bool:
     if safe:
         try:
-            return target in find_parent_classes(klass, include_self=include_self)
+            return target in _find_parent_classes_iter(klass, include_self=include_self)
         except HierarchyError:
             return False
     else:
-        return target in find_parent_classes(klass, include_self=include_self)
+        return target in _find_parent_classes_iter(klass, include_self=include_self)
 
 
 def find_sub_classes(klass: Union[str, ExportTableItem]) -> Iterator[str]:
@@ -105,7 +105,7 @@ def find_sub_classes(klass: Union[str, ExportTableItem]) -> Iterator[str]:
     yield from (node.data for node in node.walk_iterator(skip_self=True))
 
 
-def find_parent_classes(klass: Union[str, ExportTableItem], *, include_self=False) -> Iterator[str]:
+def find_parent_classes(klass: Union[str, ExportTableItem], *, include_self=False) -> List[str]:
     '''
     Iterate over an export's parent classes.
     `klass` should be a full classname or an exported class.
@@ -114,15 +114,19 @@ def find_parent_classes(klass: Union[str, ExportTableItem], *, include_self=Fals
     supplied as an ExportTableItem to allow discovery of intermediate hierarchy.
     '''
     if isinstance(klass, str):
-        yield from _find_parent_classes(klass, include_self=include_self)
+        return _find_parent_classes(klass, include_self=include_self)
     elif isinstance(klass, ExportTableItem):
-        yield from _find_parent_classes.__wrapped__(klass, include_self=include_self)
+        return _find_parent_classes.__wrapped__(klass, include_self=include_self)
     else:
         raise TypeError('Invalid argument')
 
 
 @lru_cache(maxsize=1024)
-def _find_parent_classes(klass: Union[str, ExportTableItem], *, include_self=False) -> Iterator[str]:
+def _find_parent_classes(klass: Union[str, ExportTableItem], *, include_self=False) -> List[str]:
+    return list(_find_parent_classes_iter(klass, include_self=include_self))
+
+
+def _find_parent_classes_iter(klass: Union[str, ExportTableItem], *, include_self=False) -> Iterator[str]:
     export: Optional[ExportTableItem] = None
 
     if isinstance(klass, str):
