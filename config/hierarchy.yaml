@@ -82,6 +82,8 @@
                 - '/Script/ShooterGame.PrimalDinoCharacter':
                     - '/Script/ShooterGame.PrimalRaft'
                     - '/Script/ShooterGame.PrimalWheeledVehicleCharacter'
+                    # INEXACT, NEEDS VERIFICATION
+                    - '/Script/ShooterGame.VRMainBoss_Character'
         - '/Script/Engine.WheeledVehicle'
     - '/Script/Engine.PlayerCameraManager':
         - '/Script/ShooterGame.ShooterPlayerCameraManager'
