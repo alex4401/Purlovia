@@ -39,8 +39,8 @@ class TradesStage(JsonHierarchyExportStage):
             return None
 
         v: Dict[str, Any] = dict()
-        v['blueprintPath'] = proxy.get_source().fullname
-        v['item'] = trade.ItemClass[0]
+        v['bp'] = proxy.get_source().fullname
+        v['itemBP'] = trade.ItemClass[0]
         v['qty'] = trade.Quantity[0]
         v['cost'] = trade.ItemCost[0]
 

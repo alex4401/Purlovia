@@ -82,6 +82,7 @@ def create_parser() -> argparse.ArgumentParser:
     parser.add_argument('--skip-wiki-loot-crates', action='store_true', help='skip extracting loot crates for the wiki')
     parser.add_argument('--skip-wiki-species', action='store_true', help='skip extracting species for the wiki')
     parser.add_argument('--skip-wiki-trades', action='store_true', help='skip extracting HLN-A trades for the wiki')
+    parser.add_argument('--skip-wiki-missions', action='store_true', help='skip extracting missions for the wiki')
 
     parser.add_argument('--skip-process-spawns', action='store_true', help='skip processing spawning data for the wiki')
     parser.add_argument('--skip-process-biomes', action='store_true', help='skip processing biomes for the wiki')
@@ -155,6 +156,8 @@ def handle_args(args: Any) -> ConfigFile:
         config.export_wiki.ExportSpecies = False
     if args.skip_wiki_trades:
         config.export_wiki.ExportTrades = False
+    if args.skip_wiki_missions:
+        config.export_wiki.ExportMissions = False
 
     # Processing stages
     #if args.skip_processing:

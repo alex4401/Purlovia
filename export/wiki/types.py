@@ -232,10 +232,15 @@ class MissionType(UEProxyStructure, uetype='/Script/ShooterGame.MissionType'):
     # DevKit Verified
 
     # DevKit Unverified
-    MissionSuccessMessage = uestrings('')
-    HexagonsOnCompletion = ueints(0)
     bDivideHexogonsOnCompletion = uebools(False)  # sic
     bAutoRewardFromCustomItemSets = uebools(False)
+    bRollExtraLootSetsPerPlayer = uebools(False)
+    HexagonsOnCompletion = ueints(0)
+    MissionSuccessMessage = uestrings('')
+    MissionDisplayName = uestrings('')
+    MissionDescription = uestrings('')
+
+    CustomItemSets: Mapping[int, ArrayProperty]
 
 
 class HexagonTradableOption(UEProxyStructure, uetype='/Script/ShooterGame.HexagonTradableOption'):
