@@ -1,7 +1,7 @@
 import shutil
 from logging import NullHandler, getLogger
 from pathlib import Path
-from typing import List, Optional, Dict, Any
+from typing import Any, Dict, List, Optional
 
 from ark.overrides import get_overrides_for_map
 from processing.common import SVGBoundaries, remove_unicode_control_chars
@@ -186,6 +186,7 @@ class ProcessSpawnMapsStage(ProcessingStage):
         if 'onlyEventGlobalSwaps' not in data_map_settings['worldSettings']:
             # Include global swaps as the map allows them
             all_swaps.append(make_random_class_weights_dict(global_swaps))
+        # TODO: Expand the swaps ahead of time
 
         # Determine base output path
         output_path = self._get_svg_output_path(data_path, map_name, modid)

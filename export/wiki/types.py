@@ -226,3 +226,28 @@ class PrimalEngramEntry(UEProxyStructure, uetype='/Script/ShooterGame.PrimalEngr
     BluePrintEntry: Mapping[int, ObjectProperty]  # PrimalItem ref
     EngramRequirementSets: Mapping[int, ArrayProperty]
     EngramGroup: Mapping[int, ByteProperty]
+
+
+class MissionType(UEProxyStructure, uetype='/Script/ShooterGame.MissionType'):
+    # DevKit Verified
+
+    # DevKit Unverified
+    MissionSuccessMessage = uestrings('')
+    HexagonsOnCompletion = ueints(0)
+    bDivideHexogonsOnCompletion = uebools(False)  # sic
+    bAutoRewardFromCustomItemSets = uebools(False)
+
+
+class HexagonTradableOption(UEProxyStructure, uetype='/Script/ShooterGame.HexagonTradableOption'):
+    # DevKit Verified
+
+    # DevKit Unverified
+    Quantity = ueints(0)
+    ItemCost = ueints(0)
+
+    ItemClass: Mapping[int, ObjectProperty]
+
+
+class DayCycleManager_Gen1(UEProxyStructure, uetype='/Script/ShooterGame.DayCycleManager'):
+    # No properties we can assume type for.
+    GenesisTradableOptions: Mapping[int, ArrayProperty]

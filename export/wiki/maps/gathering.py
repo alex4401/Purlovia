@@ -2,7 +2,7 @@ import re
 from typing import Any, Dict, Iterable, List, Optional, Tuple, Type, Union, cast
 
 from export.wiki.consts import *
-from export.wiki.types import BiomeZoneVolume, CustomActorList, ExplorerNote, \
+from export.wiki.types import BiomeZoneVolume, CustomActorList, DayCycleManager_Gen1, ExplorerNote, \
     NPCZoneManager, PrimalWorldSettings, SupplyCrateSpawningVolume, TogglePainVolume
 from ue.asset import ExportTableItem
 from ue.base import UEBase
@@ -149,6 +149,33 @@ class WorldSettingsExport(MapGathererBase):
         data['longMulti'] = map_info.long.multiplier
         data['latShift'] = map_info.lat.shift
         data['longShift'] = map_info.long.shift
+
+
+class Gen1TradeListExport(MapGathererBase):
+    @classmethod
+    def get_category_name(cls) -> str:
+        return 'trades'
+
+    @classmethod
+    def is_export_eligible(cls, export: ExportTableItem) -> bool:
+        return inherits_from(export, DayCycleManager_Gen1.get_ue_type()) and not getattr(export.asset, 'tile_info', None)
+
+    @classmethod
+    def extract(cls, proxy: UEProxyStructure) -> Iterable[Dict[str, Any]]:
+        manager: DayCycleManager_Gen1 = cast(DayCycleManager_Gen1, proxy)
+        d = list()
+
+        option_list = manager.get('GenesisTradableOptions', fallback=None)
+        if option_list:
+            for option in option_list.values:
+                if option:
+                    d.append(option)
+
+        yield d
+
+    @classmethod
+    def before_saving(cls, map_info: MapInfo, data: Dict[str, Any]):
+        ...
 
 
 class NPCZoneManagerExport(MapGathererBase):
@@ -530,7 +557,7 @@ class HLNAGlitchExport(GenericActorListExport):
         index = export.properties.get_property('Specific Unlocked Explorer Note Index', fallback=-1)
         return dict(
             noteIndex=index,
-            **get_actor_location_vector(export.value.value).format_for_json(),
+            **get_actor_location_vector(export).format_for_json(),
         )
 
 
@@ -598,6 +625,8 @@ EXPORTS: Dict[str, List[Type[MapGathererBase]]] = {
     'world_settings': [
         # Core
         WorldSettingsExport,
+        # Genesis
+        Gen1TradeListExport,
     ],
     'radiation_zones': [
         # Core
