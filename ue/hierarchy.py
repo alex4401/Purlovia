@@ -23,6 +23,7 @@ __all__ = [
     'inherits_from',
     'find_sub_classes',
     'find_parent_classes',
+    'find_parent_classes_iter',
     'load_internal_hierarchy',
     'explore_path',
     'iterate_all',
@@ -78,11 +79,11 @@ def inherits_from(klass: Union[str, ExportTableItem], target: str, safe=False, i
 def _inherits_from(klass: Union[str, ExportTableItem], target: str, safe=False, include_self=False) -> bool:
     if safe:
         try:
-            return target in _find_parent_classes_iter(klass, include_self=include_self)
+            return target in find_parent_classes_iter(klass, include_self=include_self)
         except HierarchyError:
             return False
     else:
-        return target in _find_parent_classes_iter(klass, include_self=include_self)
+        return target in find_parent_classes_iter(klass, include_self=include_self)
 
 
 def find_sub_classes(klass: Union[str, ExportTableItem]) -> Iterator[str]:
@@ -123,10 +124,10 @@ def find_parent_classes(klass: Union[str, ExportTableItem], *, include_self=Fals
 
 @lru_cache(maxsize=1024)
 def _find_parent_classes(klass: Union[str, ExportTableItem], *, include_self=False) -> List[str]:
-    return list(_find_parent_classes_iter(klass, include_self=include_self))
+    return list(find_parent_classes_iter(klass, include_self=include_self))
 
 
-def _find_parent_classes_iter(klass: Union[str, ExportTableItem], *, include_self=False) -> Iterator[str]:
+def find_parent_classes_iter(klass: Union[str, ExportTableItem], *, include_self=False) -> Iterator[str]:
     export: Optional[ExportTableItem] = None
 
     if isinstance(klass, str):
