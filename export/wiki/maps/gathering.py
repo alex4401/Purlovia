@@ -171,7 +171,7 @@ class Gen1TradeListExport(MapGathererBase):
                 if option:
                     d.append(option)
 
-        yield d
+        yield d  # type: ignore
 
     @classmethod
     def before_saving(cls, map_info: MapInfo, data: Dict[str, Any]):
