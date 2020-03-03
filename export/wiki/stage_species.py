@@ -32,6 +32,7 @@ OUTPUT_FLAGS = (
     'bCanBeDragged',
     'bCanBeTorpid',
     'bCanDrag',
+    'bCanMountOnHumans',
     'bDoStepDamage',
     'bFlyerAllowRidingInCaves',
     'bIsAmphibious',
