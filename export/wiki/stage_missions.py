@@ -7,6 +7,8 @@ from export.wiki.types import MissionType
 from ue.asset import UAsset
 from ue.proxy import UEProxyStructure
 
+from .stage_drops import decode_item_set
+
 __all__ = [
     'MissionsStage',
 ]
@@ -38,12 +40,23 @@ class MissionsStage(JsonHierarchyExportStage):
         v['bp'] = proxy.get_source().fullname
         v['name'] = mission.MissionDisplayName[0]
         v['description'] = mission.MissionDescription[0]
-        v['rewards'] = dict(hexagons=convert_hexagon_values(mission), )
+        v['rewards'] = dict(hexagons=_convert_hexagon_values(mission), items=_convert_item_rewards(mission))
 
         return v
 
 
-def convert_hexagon_values(mission: MissionType) -> Dict[str, Any]:
+def _convert_item_rewards(mission: MissionType):
+    d = mission.get('CustomItemSets', fallback=None)
+    v = list()
+
+    if d:
+        for itemset in d.values:
+            v.append(decode_item_set(itemset))
+
+    return v
+
+
+def _convert_hexagon_values(mission: MissionType) -> Dict[str, Any]:
     v: Dict[str, Any] = dict()
 
     v['totalQty'] = mission.HexagonsOnCompletion[0]
