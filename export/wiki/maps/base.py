@@ -1,11 +1,15 @@
 from abc import ABC, abstractmethod
-from typing import Any, Dict, Iterable, Tuple, Union
+from typing import Any, Dict, Iterable, Tuple, Union, List
 
 from ue.asset import ExportTableItem
 from ue.base import UEBase
 from ue.proxy import UEProxyStructure
 
 from .data_container import MapInfo
+
+
+GatheredData = Union[UEBase, Dict[str, Any]]
+GatheringResult = Union[GatheredData, List[GatheredData]]
 
 
 class MapGathererBase(ABC):
@@ -16,15 +20,21 @@ class MapGathererBase(ABC):
 
     @classmethod
     @abstractmethod
-    def is_export_eligible(cls, export: ExportTableItem) -> bool:
-        '''
-        Check whether an export may contain data covered by this gatherer.
-        '''
+    def get_ue_types(cls) -> Tuple[str, ...]:
         ...
 
     @classmethod
     @abstractmethod
-    def extract(cls, proxy: UEProxyStructure) -> Iterable[Union[UEBase, Dict[str, Any]]]:
+    def do_early_checks(cls, export: ExportTableItem) -> bool:
+        '''
+        Check whether an export meets any extra requirements
+        set by the gatherer.
+        '''
+        return True
+
+    @classmethod
+    @abstractmethod
+    def extract(cls, proxy: UEProxyStructure) -> GatheringResult:
         '''
         Collect data from a proxy object and return it as a dict.
         Caution: Data should be formatted for json to avoid leak any references.
