@@ -1,6 +1,7 @@
 from logging import NullHandler, getLogger
 from pathlib import Path, PurePosixPath
 from typing import Any, Dict, Iterable, List, Optional, Set
+from types import GeneratorType
 
 from ark.overrides import get_overrides_for_map
 from automate.exporter import ExportManager, ExportRoot, ExportStage
@@ -95,7 +96,7 @@ class MapStage(ExportStage):
 
         # Add exported data to the output
         for helper in EXPORTS[file_name]:
-            output_key = helper.get_category_name()
+            output_key = helper.get_export_name()
             if output_key in intermediate.data:
                 results[output_key] = intermediate.data[output_key]
 
@@ -147,24 +148,28 @@ class MapStage(ExportStage):
                 helper = find_gatherer_for_export(export)
                 if helper:
                     # Make sure the data list is initialized.
-                    category_name = helper.get_category_name()
+                    category_name = helper.get_export_name()
                     if category_name not in map_info.data:
                         map_info.data[category_name] = list()
 
                     # Extract data using helper class.
                     try:
-                        for data_fragment in helper.extract(proxy=gather_properties(export)):
-                            if not data_fragment:
-                                continue
-
-                            # Sanitise the data fragment to remove references to the UE tree.
-                            data_fragment = sanitise_output(data_fragment)
-
-                            # Add to the list.
-                            map_info.data[category_name].append(data_fragment)
+                        data_fragments = helper.extract(proxy=gather_properties(export))
                     except:  # pylint: disable=bare-except
                         logger.warning(f'Gathering properties failed for export "{export.name}" in {assetname}', exc_info=True)
                         continue
+                    if not data_fragments:
+                        continue
+
+                    if isinstance(data_fragments, GeneratorType):
+                        data_fragments = sanitise_output(list(data_fragments))
+                        for fragment in data_fragments:
+                            if not fragment:
+                                continue
+                            map_info.data[category_name].append(fragment)
+                    else:
+                        fragment = sanitise_output(data_fragments)
+                        map_info.data[category_name].append(fragment)
 
             # Preemptively remove the level from linker cache.
             self.manager.loader.cache.remove(assetname)

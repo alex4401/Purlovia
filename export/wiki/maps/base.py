@@ -15,7 +15,7 @@ GatheringResult = Union[GatheredData, List[GatheredData]]
 class MapGathererBase(ABC):
     @classmethod
     @abstractmethod
-    def get_category_name(cls) -> str:
+    def get_export_name(cls) -> str:
         ...
 
     @classmethod
@@ -24,7 +24,6 @@ class MapGathererBase(ABC):
         ...
 
     @classmethod
-    @abstractmethod
     def do_early_checks(cls, export: ExportTableItem) -> bool:
         '''
         Check whether an export meets any extra requirements

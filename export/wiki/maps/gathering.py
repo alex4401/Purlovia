@@ -6,7 +6,7 @@ from export.wiki.types import BiomeZoneVolume, CustomActorList, DayCycleManager_
     NPCZoneManager, PrimalWorldSettings, SupplyCrateSpawningVolume, TogglePainVolume
 from ue.asset import ExportTableItem
 from ue.base import UEBase
-from ue.hierarchy import MissingParent, inherits_from
+from ue.hierarchy import MissingParent, inherits_from, find_parent_classes
 from ue.loader import AssetLoadException
 from ue.properties import ArrayProperty, StringProperty, Vector
 from ue.proxy import UEProxyStructure
@@ -22,7 +22,7 @@ class GenericActorExport(MapGathererBase):
     CATEGORY: str
 
     @classmethod
-    def get_category_name(cls) -> str:
+    def get_export_name(cls) -> str:
         return cls.CATEGORY
 
     @classmethod
@@ -51,7 +51,7 @@ class GenericActorListExport(MapGathererBase):
     CATEGORY: str
 
     @classmethod
-    def get_category_name(cls) -> str:
+    def get_export_name(cls) -> str:
         return cls.CATEGORY
 
     @classmethod
@@ -59,7 +59,7 @@ class GenericActorListExport(MapGathererBase):
         return (CUSTOM_ACTOR_LIST_CLS, )
 
     @classmethod
-    def do_extra_checks(cls, export: ExportTableItem) -> bool:
+    def do_early_checks(cls, export: ExportTableItem) -> bool:
         # Check the tag
         tag = export.properties.get_property('CustomTag', fallback='')
         return str(tag) in cls.TAGS
@@ -67,12 +67,11 @@ class GenericActorListExport(MapGathererBase):
     @classmethod
     def extract(cls, proxy: UEProxyStructure) -> GatheringResult:
         actors: CustomActorList = cast(CustomActorList, proxy)
-        results = []
         for entry in actors.ActorList[0].values:
             if not entry.value.value:
                 continue
 
-            results.append(cls.extract_single(entry.value.value))
+            yield cls.extract_single(entry.value.value)
 
     @classmethod
     def extract_single(cls, export: ExportTableItem) -> GatheredData:
@@ -86,7 +85,7 @@ class GenericActorListExport(MapGathererBase):
 
 class WorldSettingsExport(MapGathererBase):
     @classmethod
-    def get_category_name(cls) -> str:
+    def get_export_name(cls) -> str:
         return 'worldSettings'
 
     @classmethod
@@ -94,7 +93,7 @@ class WorldSettingsExport(MapGathererBase):
         return (PRIMAL_WORLD_SETTINGS_CLS, )
 
     @classmethod
-    def do_extra_checks(cls, export: ExportTableItem) -> bool:
+    def do_early_checks(cls, export: ExportTableItem) -> bool:
         return not getattr(export.asset, 'tile_info', None)
 
     @classmethod
@@ -157,7 +156,7 @@ class WorldSettingsExport(MapGathererBase):
 
 class Gen1TradeListExport(MapGathererBase):
     @classmethod
-    def get_category_name(cls) -> str:
+    def get_export_name(cls) -> str:
         return 'trades'
 
     @classmethod
@@ -165,7 +164,7 @@ class Gen1TradeListExport(MapGathererBase):
         return (DayCycleManager_Gen1.get_ue_type(), )
 
     @classmethod
-    def do_extra_checks(cls, export: ExportTableItem) -> bool:
+    def do_early_checks(cls, export: ExportTableItem) -> bool:
         return not getattr(export.asset, 'tile_info', None)
 
     @classmethod
@@ -188,11 +187,11 @@ class Gen1TradeListExport(MapGathererBase):
 
 class NPCZoneManagerExport(MapGathererBase):
     @classmethod
-    def get_category_name(cls) -> str:
+    def get_export_name(cls) -> str:
         return 'spawns'
 
     @classmethod
-    def get_ue_types(cls, export: ExportTableItem) -> bool:
+    def get_ue_types(cls) -> bool:
         return (NPC_ZONE_MANAGER_CLS, )
 
     @classmethod
@@ -283,11 +282,11 @@ class NPCZoneManagerExport(MapGathererBase):
 
 class BiomeZoneExport(MapGathererBase):
     @classmethod
-    def get_category_name(cls) -> str:
+    def get_export_name(cls) -> str:
         return 'biomes'
 
     @classmethod
-    def get_ue_types(cls, export: ExportTableItem) -> bool:
+    def get_ue_types(cls) -> bool:
         return (BIOME_ZONE_VOLUME_CLS, )
 
     @classmethod
@@ -412,7 +411,7 @@ class BiomeZoneExport(MapGathererBase):
 
 class LootCrateSpawnExport(MapGathererBase):
     @classmethod
-    def get_category_name(cls) -> str:
+    def get_export_name(cls) -> str:
         return 'lootCrates'
 
     @classmethod
@@ -420,7 +419,7 @@ class LootCrateSpawnExport(MapGathererBase):
         return (SUPPLY_CRATE_SPAWN_VOLUME_CLS, )
 
     @classmethod
-    def do_extra_checks(cls, export: ExportTableItem) -> bool:
+    def do_early_checks(cls, export: ExportTableItem) -> bool:
         return bool(export.properties.get_property('bIsEnabled', fallback=True))
 
     @classmethod
@@ -488,7 +487,7 @@ class LootCrateSpawnExport(MapGathererBase):
 
 class RadiationZoneExport(MapGathererBase):
     @classmethod
-    def get_category_name(cls) -> str:
+    def get_export_name(cls) -> str:
         return 'radiationVolumes'
 
     @classmethod
@@ -496,7 +495,7 @@ class RadiationZoneExport(MapGathererBase):
         return (TOGGLE_PAIN_VOLUME_CLS, )
 
     @classmethod
-    def do_extra_checks(cls, export: ExportTableItem) -> bool:
+    def do_early_checks(cls, export: ExportTableItem) -> bool:
         # Check if disabled
         is_enabled = bool(export.properties.get_property('bPainCausing', fallback=True))
         if not is_enabled:
@@ -523,7 +522,7 @@ class RadiationZoneExport(MapGathererBase):
 
 class ExplorerNoteExport(MapGathererBase):
     @classmethod
-    def get_category_name(cls) -> str:
+    def get_export_name(cls) -> str:
         return 'notes'
 
     @classmethod
@@ -551,7 +550,7 @@ class ExplorerNoteExport(MapGathererBase):
 
 class HLNAGlitchExport(GenericActorListExport):
     @classmethod
-    def get_category_name(cls) -> str:
+    def get_export_name(cls) -> str:
         return 'glitches'
 
     @classmethod
@@ -679,12 +678,15 @@ EXPORTS: Dict[str, List[Type[MapGathererBase]]] = {
 
 def find_gatherer_for_export(export: ExportTableItem) -> Optional[Type[MapGathererBase]]:
     # TODO: Cache by export klass
-    parents = set(find_parent_classes(export.klass))
+    try:
+        parents = set(find_parent_classes(export, include_self=True))
+    except MissingParent:
+        return None
 
     for _, helpers in EXPORTS.items():
         for helper in helpers:
             if parents & set(helper.get_ue_types()):
-                if helper.do_extra_checks(export):
+                if helper.do_early_checks(export):
                     return helper
 
     return None
@@ -693,7 +695,7 @@ def find_gatherer_for_export(export: ExportTableItem) -> Optional[Type[MapGather
 def find_gatherer_by_category_name(category: str) -> Optional[Type[MapGathererBase]]:
     for _, helpers in EXPORTS.items():
         for helper in helpers:
-            if helper.get_category_name() == category:
+            if helper.get_export_name() == category:
                 return helper
 
     return None
