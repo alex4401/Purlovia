@@ -141,6 +141,7 @@ def copy_spawn_groups(spawngroups):
         copy['maxNPCNumberMultiplier'] = container['maxNPCNumberMultiplier']
         copy['entries'] = [
             dict(
+                name=source['name'],
                 weight=source['weight'],
                 classes=[*source['classes']],
                 classWeights=[*source['classWeights']],

@@ -3,6 +3,7 @@ from typing import Optional
 
 from automate.exporter import ExportRoot
 from processing.stage_biome_maps import ProcessBiomeMapsStage
+from processing.stage_fds import ProcessFDSStage
 from processing.stage_spawn_maps import ProcessSpawnMapsStage
 
 from .stage_drops import DropsStage
@@ -51,4 +52,5 @@ class WikiRoot(ExportRoot):
             # TODO: Allow these to move to their own root
             ProcessBiomeMapsStage(),
             ProcessSpawnMapsStage(),
+            ProcessFDSStage(),
         ]
