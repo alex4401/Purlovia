@@ -7,7 +7,7 @@ from ark.overrides import get_overrides_for_map
 from processing.common import SVGBoundaries, remove_unicode_control_chars
 from utils.log import get_logger
 
-from .spawn_maps.game_mod import merge_game_mod_groups
+from .spawn_maps.game_mod import apply_remaps, merge_game_mod_groups
 from .spawn_maps.species import calculate_blueprint_freqs, determine_tamability, generate_dino_mappings
 from .spawn_maps.svg import generate_svg_map
 from .spawn_maps.swaps import apply_ideal_global_swaps, apply_ideal_grouplevel_swaps, \
@@ -95,6 +95,7 @@ class ProcessSpawnMapsStage(ProcessingStage):
         fix_up_groups(data['spawngroups'])
         apply_ideal_grouplevel_swaps(data['spawngroups'])
         inflate_swap_rules(swaps)
+        apply_remaps(data['spawngroups'], data.get('dinoRemaps', None))
         # Global class swaps will be applied during freq calculations
 
         return data['spawngroups'], swaps
