@@ -9,7 +9,7 @@ from automate.jsonutils import save_as_json
 from processing.common import SVGBoundaries, remove_unicode_control_chars
 
 from . import fds
-from .spawn_maps.game_mod import merge_game_mod_groups
+from .spawn_maps.game_mod import apply_remaps, merge_game_mod_groups
 from .spawn_maps.species import calculate_blueprint_freqs, determine_tamability, generate_dino_mappings
 from .spawn_maps.svg import generate_svg_map
 from .spawn_maps.swaps import apply_ideal_global_swaps, apply_ideal_grouplevel_swaps, \
@@ -98,6 +98,7 @@ class ProcessFDSStage(ProcessingStage):
         fix_up_groups(data['spawngroups'])
         apply_ideal_grouplevel_swaps(data['spawngroups'])
         inflate_swap_rules(swaps)
+        apply_remaps(data['spawngroups'], data.get('dinoRemaps', None))
         # Global class swaps will be applied during freq calculations
 
         return data['spawngroups'], swaps
@@ -131,9 +132,29 @@ class ProcessFDSStage(ProcessingStage):
 
         self._process_all_maps(maps, data_asb_mod, data_groups, data_swaps, modid)
 
-    def _game_mod_generate_svgs(self, _modid: str, _mod_name: str):
-        # No need.
-        return
+    def _game_mod_generate_svgs(self, modid: str, _mod_name: str):
+        # Find data of maps with NPC spawns
+        maps: List[Path] = [path.parent for path in self.wiki_path.glob('*/npc_spawns.json')]
+
+        # Load and merge ASB data
+        data_asb_core = self._load_asb(None)
+        data_asb_mod = self._load_asb(modid)
+        if not data_asb_core:
+            logger.debug(f'Data required by the processor is missing or invalid. Skipping.')
+            return
+
+        if data_asb_mod:
+            data_asb_mod['species'] += data_asb_core['species']
+        else:
+            data_asb_mod = dict(species=data_asb_core['species'])
+
+        # Load and merge spawning group data
+        data_groups, data_swaps = self._get_spawning_groups(modid, is_game_mod=True)
+        if not data_groups:
+            logger.debug(f'Data required by the processor is missing or invalid. Skipping.')
+            return
+
+        self._process_all_maps(maps, data_asb_mod, data_groups, data_swaps, modid)
 
     def _process_all_maps(self, maps, data_asb, data_groups, data_swaps, modid):
         spawndata = _SpawningData(
@@ -176,18 +197,10 @@ class ProcessFDSStage(ProcessingStage):
 
         # Determine base output path
         output_path = self._get_svg_output_path(data_path, data_path.name, modid)
-        # Remove existing directory
-        if output_path.is_dir():
-            shutil.rmtree(output_path)
 
         # Load exported data
         data_map_settings = self.load_json_file(data_path / 'world_settings.json')
         data_map_spawns = self.load_json_file(data_path / 'npc_spawns.json')
-        if data_path.name not in [
-                'Aberration', 'TheIslandSubMaps', 'Extinction', 'ScorchedEarth', 'Ragnarok', 'Valguero', 'TheCenter', 'Genesis'
-        ]:
-            print(data_path.name)
-            #print(data_map_settings, data_map_spawns)
         if not data_map_settings or not data_map_spawns:
             logger.debug(f'Data required by the processor is missing or invalid. Skipping.')
             return

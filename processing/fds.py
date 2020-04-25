@@ -1,3 +1,8 @@
+from logging import NullHandler, getLogger
+
+logger = getLogger(__name__)
+logger.addHandler(NullHandler())
+
 VARIANTS = [
     'Rare',
     #    'Lunar',
@@ -74,13 +79,22 @@ def run(spawns, groups, data):
                 v3 = dict()
 
                 # v3['n']: str - dino name
-                v3['n'] = get_name(data.asb, dino)
+                try:
+                    v3['n'] = get_name(data.asb, dino)
+                except ValueError as ex:
+                    #logger.warning(ex)
+                    #continue
+                    v3['n'] = dino[dino.index('.'):]
                 # v3['c']: float - chance
                 v3['c'] = round(min(1, entry['classWeights'][index]), 2)
 
                 v2['s'].append(v3)
 
-            v1['e'].append(v2)
+            if v2['s']:
+                v1['e'].append(v2)
+
+        if not v1['e']:
+            continue
 
         # v1['s']: list - regions
         v1['s'] = list()
