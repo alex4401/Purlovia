@@ -320,6 +320,12 @@ maps:
             border_left: 0
             border_right: 100
             border_bottom: 100
+    /Game/Maps/CrystalIsles/CrystalIsles:
+        svgs:
+            border_top: 10.5
+            border_left: 14
+            border_right: 86
+            border_bottom: 87
 
 
 # Override settings on a per-species basis
