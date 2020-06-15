@@ -75,6 +75,9 @@ defaults:
             no_effect: '\**NO(\*|\s)*EFFECT\**'
             not_used: '\**NOT(\*|\s)*USED\**'
 
+    # Whether to generate SVG spawning maps if a non-custom map
+    skip_spawn_maps: true
+
 
 sanity_checks:
     min_species:
@@ -184,23 +187,30 @@ mods:
 
         classname_variant_parts:
             Alpha: true
+    
+    CrystalIsles:
+        skip_spawn_maps: false
 
     839162288: # Primal Fear
+        skip_spawn_maps: false
         color_regions:
             useless_name_regexes:
                 pf_groups: '(Toxic|Alpha|Electric|Golds?|Blacks?)\d*'
 
     1356703358: # Primal Fear Noxious
+        skip_spawn_maps: false
         color_regions:
             useless_name_regexes:
                 pfn_groups: '(Toxic|Alpha)\d*'
 
     1681125667: # Primal Fear Extinction Expansion
+        skip_spawn_maps: false
         classname_variant_parts:
             Child: true
             Tamed: true
 
     899987403: # Primal Fear Bosses
+        skip_spawn_maps: false
         classname_variant_parts:
             Baby: true
             Child: true
@@ -231,6 +241,7 @@ mods:
             Tranq: true
 
     893735676: # Ark Eternal
+        skip_spawn_maps: false
         classname_variant_parts:
             NoHarvest: true
 
@@ -242,6 +253,9 @@ mods:
     1821554891: # Purlovia Test Mod
         add_variants:
             Test Only: true
+
+    1522327484: # ARK Additions
+        skip_spawn_maps: false
 
 
 # Override settings on a per-map basis

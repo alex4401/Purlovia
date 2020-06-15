@@ -116,10 +116,14 @@ class OverrideSettings(BaseModel):
     )
 
     # Maps
+    skip_spawn_maps: bool = Field(
+        True,
+        description="Whether to skip generating SVG spawning maps",
+    )
     svgs: MapBoundariesSettings = Field(
         MapBoundariesSettings(),
         title="SVGs",
-        description="SVG map genration boundaries",
+        description="SVG map generation boundaries",
     )
 
 
