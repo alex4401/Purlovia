@@ -33,6 +33,11 @@ class ProcessSpawnMapsStage(ProcessingStage):
     def extract_mod(self, _: Path, modid: str):
         mod_data = self.manager.arkman.getModData(modid)
         assert mod_data
+        if modid:
+            overrides = get_overrides_for_mod(modid)
+            if overrides.skip_spawn_maps:
+                return
+
         self.get_data_and_generate(mod_data)
 
     def get_mod_subroot_name(self, modid: str) -> str:
@@ -142,30 +147,25 @@ class ProcessSpawnMapsStage(ProcessingStage):
             if output_path.is_dir():
                 shutil.rmtree(output_path)
 
-            # Generate the maps if shouldn't skip
-            if modid:
-                overrides = get_overrides_for_mod(modid)
-                if overrides.skip_spawn_maps:
-                    continue
+            # Generate the maps
             self._map_process_data(map_path, spawndata, output_path)
 
     def _get_svg_output_path(self, data_path: Path, map_name: str, modid: Optional[str]) -> Path:
         if not modid:
             # Core maps
-            #   data/wiki/Map/spawn_maps
-            #   or data_path/spawn_maps
-            return (data_path / 'spawn_maps')
+            #   processed/wiki-maps/spawns/Map/
+            return (self.output_path / 'spawns' / map_name)
 
         # Mods
-        #   data/wiki/Id-Mod/spawn_maps/Map
-        return (self.wiki_path / self.get_mod_subroot_name(modid) / 'spawn_maps' / map_name)
+        #   processed/wiki-maps/spawns/Map/Id-Mod/
+        return (self.output_path / 'spawns' / map_name / self.get_mod_subroot_name(modid))
 
     def _map_process_data(self, data_path: Path, spawndata: _SpawningData, output_path: Path):
         logger.info(f'Processing data of map: {data_path.name}')
 
         # Load exported data
-        data_map_settings = self.load_json_file(data_path / 'world_settings.json')
-        data_map_spawns = self.load_json_file(data_path / 'npc_spawns.json')
+        data_map_settings = self.load_json_file(self.wiki_path / data_path / 'world_settings.json')
+        data_map_spawns = self.load_json_file(self.wiki_path / data_path / 'npc_spawns.json')
         if not data_map_settings or not data_map_spawns:
             logger.debug('Data required by the processor is missing or invalid. Skipping.')
             return

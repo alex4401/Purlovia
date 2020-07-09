@@ -43,7 +43,7 @@ class ProcessingStage(ExportStage, metaclass=ABCMeta):  # pylint: disable=abstra
 
     def find_maps(self, path: Path, keyword='world_settings') -> List[Path]:
         '''Returns a list of maps in specific path of the output directory.'''
-        return [p.parent for p in path.glob(f'*/{keyword}.json')]
+        return [p.parent.relative_to(self.wiki_path) for p in path.glob(f'*/{keyword}.json')]
 
     def find_official_maps(self, only_core=False, keyword='world_settings') -> List[Path]:
         '''Returns a list of official maps in the output directory.'''

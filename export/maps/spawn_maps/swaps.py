@@ -26,7 +26,7 @@ def make_random_class_weights_dict(random_class_weights):
     '''
     lookup = dict()
     for remap_entry in random_class_weights:
-        if not remap_entry['to']:
+        if not remap_entry['to'] or 'during' in remap_entry:
             continue
 
         from_classes = remap_entry['from']
