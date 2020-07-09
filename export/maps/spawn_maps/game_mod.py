@@ -22,3 +22,15 @@ def merge_game_mod_groups(core_groups, changeset):
                 orig_group['limits'] += change['limits']
             else:
                 orig_group['limits'] = change['limits']
+
+
+def apply_remaps(groups, remaps):
+    if not remaps:
+        return
+    fromto = {e['from']: e['to'] for e in remaps}
+
+    for group in groups:
+        for entry in group['entries']:
+            for index, klass in enumerate(entry['classes']):
+                new_klass = fromto.get(klass, None)
+                entry['classes'][index] = new_klass or klass
