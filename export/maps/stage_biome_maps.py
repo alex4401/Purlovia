@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import List, Optional
+from typing import Optional
 
 from ark.mod import get_official_mods
 from ark.overrides import get_overrides_for_map
@@ -22,7 +22,7 @@ class ProcessBiomeMapsStage(ProcessingStage):
 
     def extract_core(self, _: Path):
         # Find data of maps with biomes
-        map_set: List[Path] = [path.parent.relative_to(self.wiki_path) for path in self.wiki_path.glob('*/biomes.json')]
+        map_set = self.find_official_maps(True, keyword='biomes')
 
         for data_path in map_set:
             self._process(self.wiki_path / data_path, self.output_path / data_path, None)
@@ -36,7 +36,7 @@ class ProcessBiomeMapsStage(ProcessingStage):
 
         # Find data of maps with biomes
         root_wiki_mod_dir = Path(self.wiki_path / f'{modid}-{mod_data["name"]}')
-        map_set: List[Path] = [path.parent.relative_to(self.wiki_path) for path in root_wiki_mod_dir.glob('*/biomes.json')]
+        map_set = self.find_maps(root_wiki_mod_dir, keyword='biomes')
 
         for data_path in map_set:
             self._process(self.wiki_path / data_path, self.output_path / data_path, modid)
