@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, Optional, cast
+from typing import Any, Dict, Optional, cast
 
 from automate.hierarchy_exporter import ExportFileModel, ExportModel, JsonHierarchyExportStage
 from ue.asset import UAsset
