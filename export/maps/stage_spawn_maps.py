@@ -40,11 +40,6 @@ class ProcessSpawnMapsStage(ProcessingStage):
 
         self.get_data_and_generate(mod_data)
 
-    def get_mod_subroot_name(self, modid: str) -> str:
-        mod_data = self.manager.arkman.getModData(modid)
-        assert mod_data
-        return f'{modid}-{mod_data["name"]}'
-
     def load_asb(self, modid: Optional[str]):
         if modid:
             path = (self.asb_path / f'{self.get_mod_subroot_name(modid)}.json')

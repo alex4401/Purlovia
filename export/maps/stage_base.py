@@ -25,6 +25,11 @@ class ProcessingStage(ExportStage, metaclass=ABCMeta):  # pylint: disable=abstra
         self.asb_path = self.manager.config.settings.OutputPath / self.manager.config.export_asb.PublishSubDir
         self.wiki_path = self.manager.config.settings.OutputPath / self.manager.config.export_wiki.PublishSubDir
 
+    def get_mod_subroot_name(self, modid: str) -> str:
+        mod_data = self.manager.arkman.getModData(modid)
+        assert mod_data
+        return f'{modid}-{mod_data["name"]}'
+
     def load_json_file(self, path: Path) -> Any:
         '''Attempts to load a JSON file. Returns None on error.'''
         try:
