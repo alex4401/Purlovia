@@ -65,6 +65,12 @@ class ProcessSpawnMapsStage(ProcessingStage):
             return None, None
         swaps = core_data['classSwaps']
 
+        # Load data from separated official mods
+        for official_mod in self.manager.config.settings.SeparateOfficialMods:
+            core_data_2 = self.load_spawning_groups(official_mod)
+            if core_data_2:
+                core_data['spawngroups'] += core_data_2['spawngroups']
+
         # Load mod data and merge it with core
         if modid:
             mod_data = self.load_spawning_groups(modid)
