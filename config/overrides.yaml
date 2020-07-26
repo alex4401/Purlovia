@@ -978,6 +978,10 @@ species:
         color_regions:
             region_names:
                 1: null
+    /Game/Genesis/Dinos/BiomeVariants/Bog_Raptor/Bog_Raptor_Character_BP:
+        color_regions:
+            region_names:
+                1: null # Covers extremely small area, and is barely visible with default intensity
     /Game/Mods/Ragnarok/Custom_Assets/Dinos/Wyvern/Ice_Wyvern/Ragnarok_Wyvern_Override_Ice:
         color_regions:
             region_names:
