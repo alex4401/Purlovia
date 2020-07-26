@@ -982,6 +982,11 @@ species:
         color_regions:
             region_names:
                 1: null # Covers extremely small area, and is barely visible with default intensity
+    /Game/Genesis/Dinos/BiomeVariants/Volcano_Allosaurus/Volcano_Allo_Character_BP:
+        color_regions:
+            region_names:
+                1: null
+                2: null
     /Game/Mods/Ragnarok/Custom_Assets/Dinos/Wyvern/Ice_Wyvern/Ragnarok_Wyvern_Override_Ice:
         color_regions:
             region_names:
