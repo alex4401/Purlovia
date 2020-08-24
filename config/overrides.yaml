@@ -1001,6 +1001,10 @@ species:
         color_regions:
             region_names:
                 1: null
+    /Game/Genesis/Dinos/BiomeVariants/Bog_Spino/Bog_Spino_Character_BP:
+        color_regions:
+            region_names:
+                1: null
     
 
     /Game/PrimalEarth/Dinos/Dimorphodon/Dimorph_Character_BP_Aggressive: # Base for Dragon boss minions
