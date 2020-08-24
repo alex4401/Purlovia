@@ -992,6 +992,10 @@ species:
             region_names:
                 1: null
                 2: null
+    /Game/Aberration/Dinos/Pteroteuthis/Pteroteuthis_Char_BP:
+        color_regions:
+            region_names:
+                3: null
 
     /Game/PrimalEarth/Dinos/Dimorphodon/Dimorph_Character_BP_Aggressive: # Base for Dragon boss minions
         skip_export: true
