@@ -997,6 +997,11 @@ species:
         color_regions:
             region_names:
                 3: null
+    /Game/Genesis/Dinos/BiomeVariants/Snow_Argentavis/Snow_Argent_Character_BP:
+        color_regions:
+            region_names:
+                1: null
+    
 
     /Game/PrimalEarth/Dinos/Dimorphodon/Dimorph_Character_BP_Aggressive: # Base for Dragon boss minions
         skip_export: true
