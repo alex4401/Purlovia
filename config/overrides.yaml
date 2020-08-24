@@ -957,6 +957,7 @@ species:
             region_names:
                 0: "Body"
                 1: "Spine"
+                2: null # unused
                 3: "Spikes"
                 4: "Furred Stripes"
                 5: "Underside and Legs"
