@@ -755,6 +755,9 @@ species:
         color_regions:
             region_names:
                 0: "Body"
+                1: null # Unused
+                2: null # Unused
+                3: null # Unused
                 4: "Back Stripes"
                 5: "Inner Ear, Snout, Belly, Appendages"
     /Game/PrimalEarth/Dinos/Ptero/Ptero_Character_BP:
