@@ -3,7 +3,6 @@ from typing import Any, Dict, Optional, cast
 from automate.hierarchy_exporter import JsonHierarchyExportStage
 from ue.asset import UAsset
 from ue.proxy import UEProxyStructure
-from ue.utils import sanitise_output
 
 from .spawn_groups.additions import segregate_container_additions
 from .spawn_groups.remaps import convert_npc_remaps

@@ -308,19 +308,19 @@ maps:
             border_left: 3
             border_right: 102
             border_bottom: 102
-    /Game/Maps/Ragnarok/Ragnarok:
+    /Game/Mods/Ragnarok/Ragnarok:
         svgs:
             border_top: 0
             border_left: 0
             border_right: 100
             border_bottom: 100
-    /Game/Maps/Valguero/Valguero_P:
+    /Game/Mods/Valguero/Valguero_P:
         svgs:
             border_top: 0
             border_left: 0
             border_right: 100
             border_bottom: 100
-    /Game/Maps/CrystalIsles/CrystalIsles:
+    /Game/Mods/CrystalIsles/CrystalIsles:
         svgs:
             border_top: 10.5
             border_left: 14
