@@ -23,11 +23,11 @@ class EngramRequirements(ExportModel):
 
 class Engram(ExportModel):
     description: Optional[StringProperty]
-    blueprintPath: str = Field(
+    bp: str = Field(
         ...,
         title="Full blueprint path of the engram",
     )
-    itemBlueprintPath: Optional[str] = Field(
+    itemBP: Optional[str] = Field(
         ...,
         title="Full blueprint path of the item",
     )
@@ -57,7 +57,7 @@ class EngramsExportModel(ExportFileModel):
 
 class EngramsStage(JsonHierarchyExportStage):
     def get_format_version(self) -> str:
-        return "2"
+        return "3"
 
     def get_name(self) -> str:
         return "engrams"
@@ -85,8 +85,8 @@ class EngramsStage(JsonHierarchyExportStage):
 
         out = Engram(
             description=engram.ExtraEngramDescription[0] if engram.has_override('ExtraEngramDescription') else None,
-            blueprintPath=engram.get_source().fullname,
-            itemBlueprintPath=sanitise_output(engram.get('BluePrintEntry', 0, None)),
+            bp=engram.get_source().fullname,
+            itemBP=sanitise_output(engram.get('BluePrintEntry', 0, None)),
             group=convert_engram_group(engram),
             requirements=EngramRequirements(
                 characterLevel=engram.RequiredCharacterLevel[0],
