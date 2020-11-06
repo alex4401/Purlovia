@@ -7,6 +7,7 @@ from ark.overrides import get_overrides_for_map, get_overrides_for_mod
 from utils.log import get_logger
 
 from .common import SVGBoundaries, remove_unicode_control_chars
+from .spawn_maps.format import SpawningData, make_uniform_data_object
 from .spawn_maps.game_mod import apply_remaps, is_custom_map, merge_game_mod_groups
 from .spawn_maps.species import calculate_blueprint_freqs, determine_tamability, generate_dino_mappings
 from .spawn_maps.svg import generate_svg_map
@@ -20,8 +21,6 @@ __all__ = [
     'ProcessSpawnMapsStage',
 ]
 
-_SpawningData = namedtuple('_SpawningData', ('asb', 'species', 'groups', 'global_swaps'))
-
 
 class ProcessSpawnMapsStage(ProcessingStage):
     def get_name(self) -> str:
@@ -31,69 +30,47 @@ class ProcessSpawnMapsStage(ProcessingStage):
         self.get_data_and_generate(None)
 
     def extract_mod(self, _: Path, modid: str):
+        overrides = get_overrides_for_mod(modid)
+        if overrides.skip_spawn_maps:
+            return
+
         mod_data = self.manager.arkman.getModData(modid)
         assert mod_data
-        if modid:
-            overrides = get_overrides_for_mod(modid)
-            if overrides.skip_spawn_maps:
-                return
-
         self.get_data_and_generate(mod_data)
 
-    def load_asb(self, modid: Optional[str]):
-        if modid:
-            path = (self.asb_path / f'{self.get_mod_subroot_name(modid)}.json')
-        else:
-            path = (self.asb_path / 'values.json')
-        return self.load_json_file(path)
+    def get_spawning_groups(self, modid: Optional[str], is_game_mod: bool = False) -> SpawningData:
+        # Load core data
+        data = self.load_spawning_groups(None)
+        if not data:
+            return None
 
-    def load_spawning_groups(self, modid: Optional[str]):
-        if modid:
-            path = (self.wiki_path / self.get_mod_subroot_name(modid) / 'spawn_groups.json')
-        else:
-            path = (self.wiki_path / 'spawn_groups.json')
-        return self.load_json_file(path)
-
-    def get_spawning_groups(self, modid: Optional[str], is_game_mod: bool = False):
-        core_data = self.load_spawning_groups(None)
-        if not core_data:
-            return None, None
-        swaps = core_data['classSwaps']
-
-        # Load data from separated official mods
-        for official_mod in self.manager.config.settings.SeparateOfficialMods:
-            core_data_2 = self.load_spawning_groups(official_mod)
-            if core_data_2:
-                core_data['spawngroups'] += core_data_2['spawngroups']
+        # Load data from separate official mods
+        for official_modid in self.manager.config.settings.SeparateOfficialMods:
+            official_mod = self.load_spawning_groups(official_modid)
+            if official_mod:
+                data['spawngroups'] += official_mod['spawngroups']
 
         # Load mod data and merge it with core
         if modid:
-            mod_data = self.load_spawning_groups(modid)
-            if not mod_data:
+            mod = self.load_spawning_groups(modid)
+            if not mod:
                 # No data exists.
                 return None, None
+
             # Join group container lists
-            mod_data['spawngroups'] += core_data['spawngroups']
+            data['spawngroups'] += mod.get('spawngroups', list())
 
             if is_game_mod:
-                swaps = mod_data.get('classSwaps', [])
+                custom_swaps = mod.get('classSwaps', None)
+                if custom_swaps:
+                    data['classSwaps'] = custom_swaps
+
                 # Join group mods with core groups
-                if 'externalGroupChanges' in mod_data:
-                    merge_game_mod_groups(mod_data['spawngroups'], mod_data['externalGroupChanges'])
+                additions = mod.get('externalGroupChanges', None)
+                if additions:
+                    data['externalGroupChanges'] += additions
 
-            data = mod_data
-        else:
-            # Not a mod.
-            data = core_data
-
-        # Do all the insanity now and fix up the groups
-        fix_up_groups(data['spawngroups'])
-        apply_ideal_grouplevel_swaps(data['spawngroups'])
-        inflate_swap_rules(swaps)
-        apply_remaps(data['spawngroups'], data.get('dinoRemaps', None))
-        # Global class swaps will be applied during freq calculations
-
-        return data['spawngroups'], swaps
+        return make_uniform_data_object(data)
 
     def get_data_and_generate(self, mod: Optional[Dict[str, Any]]):
         modid = mod['id'] if mod else None

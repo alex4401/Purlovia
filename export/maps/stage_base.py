@@ -1,7 +1,7 @@
 import json
 from abc import ABCMeta
 from pathlib import Path
-from typing import Any, List
+from typing import Any, List, Optional
 
 from automate.exporter import ExportManager, ExportRoot, ExportStage
 from utils.log import get_logger
@@ -38,6 +38,16 @@ class ProcessingStage(ExportStage, metaclass=ABCMeta):  # pylint: disable=abstra
                 return data
         except OSError:
             return None
+
+    def load_asb(self, modid: Optional[str]):
+        if modid:
+            return self.load_json_file(self.asb_path / f'{self.get_mod_subroot_name(modid)}.json')
+        return self.load_json_file(self.asb_path / 'values.json')
+
+    def load_spawning_groups(self, modid: Optional[str]):
+        if modid:
+            return self.load_json_file(self.wiki_path / self.get_mod_subroot_name(modid) / 'spawn_groups.json')
+        return self.load_json_file(self.wiki_path / 'spawn_groups.json')
 
     def save_raw_file(self, content: str, path: Path):
         '''Writes a string to a UTF-8 encoded file.'''
