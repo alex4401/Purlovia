@@ -197,6 +197,7 @@ class PrimalDinoCharacter(UEProxyStructure, uetype=PDC_CLS):
     bUniqueDino = uebools(False)
     bUseBabyGestation = uebools(False)
     bUseColorization = uebools(False)
+    bUseBPTamedTick = uebools(False)
 
     # General
     CustomTag = uestrings('')  # NameProperty (Default: None)
