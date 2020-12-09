@@ -5,15 +5,9 @@ Creates an svg-file with spawning regions of a species colored depending on the 
 from typing import List
 
 from ..common import SVGBoundaries
-from .consts import POINT_RADIUS
+from .consts import CSS_RARITY_CLASSES, POINT_RADIUS
 from .intermediate_types import SpawnPoint, SpawnRectangle
 from .species import get_rarity_for_spawn
-
-# These CSS class names are also defined on the ARK Wiki (https://ark.gamepedia.com/MediaWiki:Common.css) and thus shouldn't be renamed here.
-CSS_RARITY_CLASSES = [
-    'spawningMap-very-rare', 'spawningMap-rare', 'spawningMap-very-uncommon', 'spawningMap-uncommon', 'spawningMap-common',
-    'spawningMap-very-common'
-]
 
 
 def is_group_in_cave(path):

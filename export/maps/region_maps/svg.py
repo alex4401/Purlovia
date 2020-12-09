@@ -108,14 +108,13 @@ def generate_svg_map(bounds: SVGBoundaries, map_name, world_settings, biomes, fo
 
     # Create svg
     for biome in valid_biomes:
-        svg_output += f'''<a href="/{make_biome_link(world_settings['name'], biome['name'], follow_mod_convention)}" class="svgRegion">
-<g filter="url(#blur)">'''
+        biome_link = make_biome_link(world_settings["name"], biome["name"], follow_mod_convention)
+        svg_output += f'<a href="/{biome_link}" class="svgRegion">'
+        svg_output += '<g filter="url(#blur)">\n'
         svg_output += _generate_biome_rects(bounds, world_settings, biome)
-        svg_output += f'''
-</g>
-<text x="{round(textX)}" y="{round(textY)}">{html.escape(biome['name'], quote=True)}</text>
-</a>
-'''
+        svg_output += '</g>\n'
+        svg_output += f'<text x="{round(textX)}" y="{round(textY)}">{html.escape(biome["name"], quote=True)}</text>'
+        svg_output += '</a>\n'
 
     # End of svg
     svg_output += '</svg>'
